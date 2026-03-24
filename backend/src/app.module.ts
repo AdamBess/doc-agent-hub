@@ -4,6 +4,9 @@ import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ConfigModule } from '@nestjs/config' 
+import { FileUploadController } from './file-upload/file-upload.controller';
+import { DocumentsModule } from './documents/documents.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -18,9 +21,11 @@ import { ConfigModule } from '@nestjs/config'
       database: 'postgres',
       entities: [],
       synchronize: true
-    })
+    }),
+    DocumentsModule,
+    ChatModule
   ],
-  controllers: [AppController],
+  controllers: [AppController, FileUploadController],
   providers: [AppService],
 })
 export class AppModule {}

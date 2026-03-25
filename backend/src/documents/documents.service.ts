@@ -60,4 +60,25 @@ export class DocumentsService {
     }
     return allSplits;
   }
+
+  async searchDocuments(query: string) {
+    const retrievedDocs = await this.vectorStore.similaritySearch(query, 2);
+    const serialized = retrievedDocs
+      .map(
+        (doc) => `Source: ${doc.metadata.source}\nContent: ${doc.pageContent}`,
+      )
+      .join('\n');
+    return [serialized, retrievedDocs];
+  }
+
+  async getDocumentChunks(documentId: number): Promise<string> {
+    const results = await this.vectorStore.similaritySearch('', 100, {
+      documentId,
+    });
+    return results.map((doc) => doc.pageContent).join('\n');
+  }
+
+  async listDocuments() {
+    return this.documentRepo.find();
+  }
 }

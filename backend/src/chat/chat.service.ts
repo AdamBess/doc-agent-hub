@@ -3,11 +3,13 @@ import { Injectable } from '@nestjs/common';
 import { RouteDecisionSchema, AgentState } from './agent.state';
 import { DocumentsService } from 'src/documents/documents.service';
 import { createAgent } from 'langchain';
+import { END, START, StateGraph } from '@langchain/langgraph';
 
 @Injectable()
 export class ChatService {
   constructor(private documentsService: DocumentsService) {}
-  async router(state: typeof AgentState.State) {
+
+  router = async (state: typeof AgentState.State) => {
     const routerLlm = new ChatOpenAI({ model: 'gpt-5-mini' });
 
     const structuredLlm = routerLlm.withStructuredOutput(RouteDecisionSchema);
@@ -28,20 +30,22 @@ export class ChatService {
     ]);
 
     return { routeDecision: result.route };
-  }
+  };
 
   routeToAgents(state: typeof AgentState.State) {
     switch (state.routeDecision) {
       case 'retrieve':
-        return 'retriever';
+        return 'retrieve';
       case 'summarize':
-        return 'summarizer';
+        return 'summarize';
       case 'list':
         return 'listDocuments';
+      default:
+        return 'retrieve';
     }
   }
 
-  async retrieve(state: typeof AgentState.State) {
+  retrieve = async (state: typeof AgentState.State) => {
     const [context] = await this.documentsService.searchDocuments(
       state.question,
     );
@@ -64,8 +68,8 @@ export class ChatService {
       messages: [{ role: 'user', content: state.question }],
     });
     return { messages: [result.messages.at(-1)?.content] };
-  }
-  async summarize(state: typeof AgentState.State) {
+  };
+  summarize = async (state: typeof AgentState.State) => {
     if (!state.documentId) {
       return { messages: ['No document selected.'] };
     }
@@ -91,13 +95,29 @@ export class ChatService {
       messages: [{ role: 'user', content: state.question }],
     });
     return { messages: [result.messages.at(-1)?.content] };
-  }
+  };
 
-  async listDocuments(state: typeof AgentState.State) {
+  listDocuments = async (state: typeof AgentState.State) => {
     const docs = await this.documentsService.listDocuments();
     const list = docs
       .map((d) => `- ${d.filename} (uploaded: ${d.uploadedAt})`)
       .join('\n');
     return { messages: [list || 'No documents uploaded yet.'] };
-  }
+  };
+
+  workflow = new StateGraph(AgentState)
+    .addNode('router', this.router)
+    .addNode('retrieve', this.retrieve)
+    .addNode('summarize', this.summarize)
+    .addNode('listDocuments', this.listDocuments)
+    .addEdge(START, 'router')
+    .addConditionalEdges('router', this.routeToAgents, [
+      'retrieve',
+      'summarize',
+      'listDocuments',
+    ])
+    .addEdge('retrieve', END)
+    .addEdge('summarize', END)
+    .addEdge('listDocuments', END)
+    .compile();
 }

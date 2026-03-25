@@ -10,3 +10,7 @@ export const AgentState = new StateSchema({
   ),
   routeDecision: z.enum(['retrieve', 'summarize', 'list']).optional(),
 });
+
+export const RouteDecisionSchema = z.object({
+  route: z.enum(['retrive', 'summarize', 'list']),
+});

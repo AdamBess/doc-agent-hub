@@ -23,13 +23,14 @@ export class ChatService {
         - "retrieve": The user asks a specific question about the content of a document (e.g. "What does chapter 3 say?", "Explain the section about...")
         - "summarize": The user wants a summary of an entire document (e.g. "Summarize the document", "What is the document about?")
         - "list": The user asks about their uploaded documents (e.g. "Which documents do I have?", "Show me my uploads")
-        Respond only with the appropriate route.
+        If the user mentions a document by name, extract the document name.
+        Always respond with the appropriate route.
 `,
       },
       { role: 'user', content: state.question },
     ]);
 
-    return { routeDecision: result.route };
+    return { routeDecision: result.route, documentName: result.documentName };
   };
 
   retrieve = async (state: typeof AgentState.State) => {
@@ -58,12 +59,15 @@ export class ChatService {
   };
 
   summarize = async (state: typeof AgentState.State) => {
-    if (!state.documentId) {
-      return { messages: ['No document selected.'] };
+    if (!state.documentName || state.documentName === '') {
+      return { messages: ['No document specified.'] };
     }
-
+    const doc = await this.documentsService.findByFilename(state.documentName);
+    if (!doc) {
+      return { messages: ['Document not found.'] };
+    }
     const context = await this.documentsService.getDocumentChunks(
-      state.documentId,
+      doc.documentId,
     );
 
     const summarizeAgent = createAgent({

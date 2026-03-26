@@ -4,10 +4,12 @@ import { z } from 'zod';
 export const AgentState = new StateSchema({
   question: z.string(),
   documentId: z.number().optional(),
+  documentName: z.string().optional(),
   messages: z.string().optional(),
   routeDecision: z.enum(['retrieve', 'summarize', 'list']).optional(),
 });
 
 export const RouteDecisionSchema = z.object({
   route: z.enum(['retrive', 'summarize', 'list']),
+  documentName: z.string().default(''),
 });

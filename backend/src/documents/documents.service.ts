@@ -63,7 +63,7 @@ export class DocumentsService {
   }
 
   async searchDocuments(query: string): Promise<[string, LangChainDocument[]]> {
-    const retrievedDocs = await this.vectorStore.similaritySearch(query, 2);
+    const retrievedDocs = await this.vectorStore.similaritySearch(query, 5);
     const serialized = retrievedDocs
       .map(
         (doc) => `Source: ${doc.metadata.source}\nContent: ${doc.pageContent}`,
@@ -85,5 +85,9 @@ export class DocumentsService {
 
   async getDocumentInfo(documentId: number) {
     return this.documentRepo.findOneBy({ documentId });
+  }
+
+  async findByFilename(filename: string) {
+    return this.documentRepo.findOneBy({ filename });
   }
 }

@@ -6,11 +6,12 @@ export class ChatController {
   constructor(private chatService: ChatService) {}
 
   @Post()
-  async chat(@Body() body: { question: string; documentId?: number }) {
-    const result = await this.chatService.workflow.invoke({
-      question: body.question,
-      documentId: body.documentId,
-    });
-    return { answer: result.messages };
+  async chat(@Body() body: { question: string; threadId?: string }) {
+    const result = await this.chatService.workflow.invoke(
+      { question: body.question },
+      { configurable: { thread_id: body.threadId ?? 'default' } },
+    );
+
+    return { answer: result.messages.at(-1) };
   }
 }

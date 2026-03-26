@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DocumentsModule } from './documents/documents.module';
 import { ChatModule } from './chat/chat.module';
 import { Document } from './documents/document.entity';
+import { McpModule } from './mcp/mcp.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { Document } from './documents/document.entity';
     }),
     DocumentsModule,
     ChatModule,
+    McpModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -4,6 +4,7 @@ import { RouteDecisionSchema, AgentState } from './agent.state';
 import { DocumentsService } from 'src/documents/documents.service';
 import { createAgent } from 'langchain';
 import { END, START, StateGraph } from '@langchain/langgraph';
+import { MemorySaver } from '@langchain/langgraph';
 
 @Injectable()
 export class ChatService {
@@ -22,6 +23,7 @@ export class ChatService {
         Routes:
         - "retrieve": The user asks a specific question about the content of a document (e.g. "What does chapter 3 say?", "Explain the section about...")
         - "summarize": The user wants a summary of an entire document (e.g. "Summarize the document", "What is the document about?")
+        - "getDocument": The user wants the full content of a specific document (e.g. "Show me Kistenlabel.pdf", "Output the content of...")
         - "list": The user asks about their uploaded documents (e.g. "Which documents do I have?", "Show me my uploads")
         If the user mentions a document by name, extract the document name.
         Always respond with the appropriate route.
@@ -34,9 +36,13 @@ export class ChatService {
   };
 
   retrieve = async (state: typeof AgentState.State) => {
-    const [context] = await this.documentsService.searchDocuments(
-      state.question,
-    );
+    const doc = state.documentName
+      ? await this.documentsService.findByFilename(state.documentName)
+      : null;
+
+    const [context] = doc
+      ? [await this.documentsService.getDocumentChunks(doc.documentId)]
+      : await this.documentsService.searchDocuments(state.question);
 
     const retrieveAgent = createAgent({
       model: new ChatOpenAI({ model: 'gpt-5' }),
@@ -89,6 +95,20 @@ export class ChatService {
     return { messages: [result.messages.at(-1)?.content] };
   };
 
+  getDocument = async (state: typeof AgentState.State) => {
+    if (!state.documentName || state.documentName === '') {
+      return { messages: ['No document specified.'] };
+    }
+    const doc = await this.documentsService.findByFilename(state.documentName);
+    if (!doc) {
+      return { messages: ['Document not found.'] };
+    }
+    const content = await this.documentsService.getDocumentChunks(
+      doc.documentId,
+    );
+    return { messages: [content] };
+  };
+
   listDocuments = async (state: typeof AgentState.State) => {
     const docs = await this.documentsService.listDocuments();
     const list = docs
@@ -103,6 +123,8 @@ export class ChatService {
         return 'retrieve';
       case 'summarize':
         return 'summarize';
+      case 'getDocument':
+        return 'getDocument';
       case 'list':
         return 'listDocuments';
       default:
@@ -115,14 +137,17 @@ export class ChatService {
     .addNode('retrieve', this.retrieve)
     .addNode('summarize', this.summarize)
     .addNode('listDocuments', this.listDocuments)
+    .addNode('getDocument', this.getDocument)
     .addEdge(START, 'route')
     .addConditionalEdges('route', this.routeToAgents, [
       'retrieve',
       'summarize',
+      'getDocument',
       'listDocuments',
     ])
     .addEdge('retrieve', END)
     .addEdge('summarize', END)
+    .addEdge('getDocument', END)
     .addEdge('listDocuments', END)
-    .compile();
+    .compile({ checkpointer: new MemorySaver() });
 }

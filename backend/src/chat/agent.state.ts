@@ -5,11 +5,16 @@ export const AgentState = new StateSchema({
   question: z.string(),
   documentId: z.number().optional(),
   documentName: z.string().optional(),
-  messages: z.string().optional(),
-  routeDecision: z.enum(['retrieve', 'summarize', 'list']).optional(),
+  messages: new ReducedValue(
+    z.array(z.string()).default(() => []),
+    { reducer: (current, update) => current.concat(update) },
+  ),
+  routeDecision: z
+    .enum(['retrieve', 'summarize', 'list', 'getDocument'])
+    .optional(),
 });
 
 export const RouteDecisionSchema = z.object({
-  route: z.enum(['retrive', 'summarize', 'list']),
+  route: z.enum(['retrieve', 'summarize', 'list', 'getDocument']),
   documentName: z.string().default(''),
 });

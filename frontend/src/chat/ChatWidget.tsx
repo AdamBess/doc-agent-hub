@@ -28,4 +28,49 @@ export default function ChatWidget() {
       body: formData,
     });
   };
+
+  return (
+    <>
+      {!isOpen && (
+        <button onClick={() => setIsOpen(true)} className="chat-toggle">
+          Open
+        </button>
+      )}
+
+      {isOpen && (
+        <div className="chat-panel">
+          <div className="chat-header">
+            <span>Doc Assistant</span>
+            <button onClick={() => setIsOpen(false)}>✕</button>
+          </div>
+
+          <div className="chat-messages">
+            {messages.map((msg, i) => (
+              <div key={i} className={`message ${msg.role}`}>
+                {msg.content}
+              </div>
+            ))}
+          </div>
+
+          <div className="chat-input">
+            <input
+              type="file"
+              id="file-upload"
+              hidden
+              accept=".pdf"
+              onChange={(e) => e.target.files && uploadFile(e.target.files[0])}
+            />
+            <label htmlFor="file-upload">Upload File</label>
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+              placeholder="Ask about your documents..."
+            />
+            <button onClick={sendMessage}>Send</button>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }

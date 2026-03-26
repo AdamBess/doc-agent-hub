@@ -87,7 +87,18 @@ export class AgentService {
   listDocuments = async (state: typeof AgentState.State) => {
     const docs = await this.documentsService.listDocuments();
     const list = docs
-      .map((d) => `- ${d.filename} (uploaded: ${d.uploadedAt})`)
+      .map((d) => {
+        const date = new Date(d.uploadedAt);
+        const formatted = date.toLocaleDateString('de-DE', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        }) + ', ' + date.toLocaleTimeString('de-DE', {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+        return `- ${d.filename} (uploaded: ${formatted})`;
+      })
       .join('\n');
     return { messages: [list || 'No documents uploaded yet.'] };
   };

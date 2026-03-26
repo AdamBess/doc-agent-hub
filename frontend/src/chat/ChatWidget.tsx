@@ -12,12 +12,23 @@ export default function ChatWidget() {
   };
 
   const sendMessage = async () => {
+    if (!input.trim()) return;
+    setMessages((prev) => [...prev, { role: 'user', content: input }]);
+    setInput('');
+    setIsLoading(true);
+
     const res = await fetch('http://localhost:3000/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: input }),
     });
     const data = await res.json();
+
+    setMessages((prev) => [
+      ...prev,
+      { role: 'assistant', content: data.answer[0] },
+    ]);
+    setIsLoading(false);
   };
 
   const uploadFile = async (file: File) => {

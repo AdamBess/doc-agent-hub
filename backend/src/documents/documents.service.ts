@@ -6,6 +6,7 @@ import { OpenAIEmbeddings } from '@langchain/openai';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Document } from './document.entity';
+import { Document as LangChainDocument } from '@langchain/core/documents';
 
 @Injectable()
 export class DocumentsService {
@@ -61,7 +62,7 @@ export class DocumentsService {
     return allSplits;
   }
 
-  async searchDocuments(query: string) {
+  async searchDocuments(query: string): Promise<[string, LangChainDocument[]]> {
     const retrievedDocs = await this.vectorStore.similaritySearch(query, 2);
     const serialized = retrievedDocs
       .map(
@@ -80,5 +81,9 @@ export class DocumentsService {
 
   async listDocuments() {
     return this.documentRepo.find();
+  }
+
+  async getDocumentInfo(documentId: number) {
+    return this.documentRepo.findOneBy({ documentId });
   }
 }

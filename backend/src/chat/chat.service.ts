@@ -9,7 +9,7 @@ import { END, START, StateGraph } from '@langchain/langgraph';
 export class ChatService {
   constructor(private documentsService: DocumentsService) {}
 
-  router = async (state: typeof AgentState.State) => {
+  route = async (state: typeof AgentState.State) => {
     const routerLlm = new ChatOpenAI({ model: 'gpt-5-mini' });
 
     const structuredLlm = routerLlm.withStructuredOutput(RouteDecisionSchema);
@@ -31,19 +31,6 @@ export class ChatService {
 
     return { routeDecision: result.route };
   };
-
-  routeToAgents(state: typeof AgentState.State) {
-    switch (state.routeDecision) {
-      case 'retrieve':
-        return 'retrieve';
-      case 'summarize':
-        return 'summarize';
-      case 'list':
-        return 'listDocuments';
-      default:
-        return 'retrieve';
-    }
-  }
 
   retrieve = async (state: typeof AgentState.State) => {
     const [context] = await this.documentsService.searchDocuments(
@@ -69,6 +56,7 @@ export class ChatService {
     });
     return { messages: [result.messages.at(-1)?.content] };
   };
+
   summarize = async (state: typeof AgentState.State) => {
     if (!state.documentId) {
       return { messages: ['No document selected.'] };
@@ -105,13 +93,26 @@ export class ChatService {
     return { messages: [list || 'No documents uploaded yet.'] };
   };
 
+  routeToAgents(state: typeof AgentState.State) {
+    switch (state.routeDecision) {
+      case 'retrieve':
+        return 'retrieve';
+      case 'summarize':
+        return 'summarize';
+      case 'list':
+        return 'listDocuments';
+      default:
+        return 'retrieve';
+    }
+  }
+
   workflow = new StateGraph(AgentState)
-    .addNode('router', this.router)
+    .addNode('route', this.route)
     .addNode('retrieve', this.retrieve)
     .addNode('summarize', this.summarize)
     .addNode('listDocuments', this.listDocuments)
-    .addEdge(START, 'router')
-    .addConditionalEdges('router', this.routeToAgents, [
+    .addEdge(START, 'route')
+    .addConditionalEdges('route', this.routeToAgents, [
       'retrieve',
       'summarize',
       'listDocuments',

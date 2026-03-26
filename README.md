@@ -120,17 +120,6 @@ pnpm dev
 
 Open `http://localhost:5173` — the chat widget appears in the bottom-right corner.
 
-### Environment Variables
-
-```
-OPENAI_API_KEY=your-api-key
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=postgres
-```
-
 ## Project Structure
 
 ```

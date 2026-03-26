@@ -10,9 +10,7 @@ export class McpService {
     version: '1.0.0',
   });
 
-  constructor(private documentsService: DocumentsService) {}
-
-  async onModuleInit() {
+  constructor(private documentsService: DocumentsService) {
     this.server.registerTool(
       'listDocuments',
       {

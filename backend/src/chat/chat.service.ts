@@ -8,12 +8,13 @@ import { MemorySaver } from '@langchain/langgraph';
 
 @Injectable()
 export class ChatService {
+  private routerLlm = new ChatOpenAI({ model: 'gpt-5-mini' });
+  private agentLlm = new ChatOpenAI({ model: 'gpt-5' });
+
   constructor(private documentsService: DocumentsService) {}
 
   route = async (state: typeof AgentState.State) => {
-    const routerLlm = new ChatOpenAI({ model: 'gpt-5-mini' });
-
-    const structuredLlm = routerLlm.withStructuredOutput(RouteDecisionSchema);
+    const structuredLlm = this.routerLlm.withStructuredOutput(RouteDecisionSchema);
 
     const result = await structuredLlm.invoke([
       {
@@ -45,7 +46,7 @@ export class ChatService {
       : await this.documentsService.searchDocuments(state.question);
 
     const retrieveAgent = createAgent({
-      model: new ChatOpenAI({ model: 'gpt-5' }),
+      model: this.agentLlm,
       tools: [],
       systemPrompt: `
         You are a document assistant.
@@ -77,7 +78,7 @@ export class ChatService {
     );
 
     const summarizeAgent = createAgent({
-      model: new ChatOpenAI({ model: 'gpt-5' }),
+      model: this.agentLlm,
       tools: [],
       systemPrompt: `
         You are a document assistant.

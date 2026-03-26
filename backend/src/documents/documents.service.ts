@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { PGVectorStore } from '@langchain/community/vectorstores/pgvector';
@@ -13,6 +14,7 @@ export class DocumentsService {
   constructor(
     @InjectRepository(Document)
     private documentRepo: Repository<Document>,
+    private configService: ConfigService,
   ) {}
 
   private vectorStore: PGVectorStore;
@@ -24,11 +26,11 @@ export class DocumentsService {
     this.vectorStore = await PGVectorStore.initialize(embeddings, {
       postgresConnectionOptions: {
         type: 'postgres',
-        host: 'localhost',
-        port: 5432,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: 'postgres',
+        host: this.configService.get('DB_HOST', 'localhost'),
+        port: this.configService.get('DB_PORT', 5432),
+        user: this.configService.get('DB_USER'),
+        password: this.configService.get('DB_PASSWORD'),
+        database: this.configService.get('DB_NAME', 'postgres'),
       },
       tableName: 'documents',
     });

@@ -60,27 +60,27 @@ The project includes a standalone **Model Context Protocol (MCP) server** that e
 
 **Upload a document and ask questions:**
 ```
-> [Upload] uebung_regression.pdf
-  "uebung_regression.pdf uploaded successfully."
+> [Upload] report.pdf
+  "report.pdf uploaded successfully."
 
-> "What topics does uebung_regression.pdf cover?"
+> "What topics does report.pdf cover?"
   "An introductory AI course focused on regression methods, covering
    linear regression, logistic regression, sigmoid properties..."
 
 > "Which documents do I have?"
-  "- uebung_regression.pdf (uploaded: Thu Mar 26 2026 17:10:15 GMT+0100)"
+  "- report.pdf (uploaded: Thu Mar 26 2026 17:10:15 GMT+0100)"
 ```
 
 **Summarize a specific document:**
 ```
-> "Summarize BA_Adam_Bessisso.pdf"
+> "Summarize thesis.pdf"
   "The thesis extends the 5Code learning environment from a Java-only
    LSP setup to a multilingual platform, adding Kotlin and Python..."
 ```
 
 **Get raw document content:**
 ```
-> "Output the content of Kistenlabel.pdf"
+> "Output the content of notes.pdf"
   [Full document text returned]
 ```
 

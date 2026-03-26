@@ -14,7 +14,8 @@ export class ChatService {
   constructor(private documentsService: DocumentsService) {}
 
   route = async (state: typeof AgentState.State) => {
-    const structuredLlm = this.routerLlm.withStructuredOutput(RouteDecisionSchema);
+    const structuredLlm =
+      this.routerLlm.withStructuredOutput(RouteDecisionSchema);
 
     const result = await structuredLlm.invoke([
       {

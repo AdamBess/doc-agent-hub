@@ -122,7 +122,7 @@ export default function ChatWidget() {
 
       {/* Chat Panel */}
       <div
-        className={`fixed bottom-24 right-6 z-50 flex w-[380px] flex-col overflow-hidden
+        className={`fixed bottom-6 right-24 z-50 flex w-[380px] flex-col overflow-hidden
           rounded-2xl bg-[#0f0f1a] shadow-[0_24px_80px_rgba(0,0,0,0.5)] ring-1 ring-white/[0.06]
           transition-all duration-300 origin-bottom-right
           ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'pointer-events-none scale-95 opacity-0 translate-y-4'}`}

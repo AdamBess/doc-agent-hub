@@ -26,18 +26,26 @@ export default function ChatWidget() {
     setInput('');
     setIsLoading(true);
 
-    const res = await fetch('http://localhost:3000/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question, threadId }),
-    });
-    const data = await res.json();
+    try {
+      const res = await fetch('http://localhost:3000/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, threadId }),
+      });
+      const data = await res.json();
 
-    setMessages((prev) => [
-      ...prev,
-      { role: 'assistant', content: data.answer },
-    ]);
-    setIsLoading(false);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: data.answer },
+      ]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: 'Something went wrong. Please try again.' },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const uploadFile = async (file: File) => {
@@ -47,18 +55,28 @@ export default function ChatWidget() {
       { role: 'user', content: `Uploading ${file.name}...` },
     ]);
 
-    const formData = new FormData();
-    formData.append('file', file);
-    await fetch('http://localhost:3000/documents/upload', {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('http://localhost:3000/documents/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-    setMessages((prev) => [
-      ...prev,
-      { role: 'assistant', content: `${file.name} uploaded successfully.` },
-    ]);
-    setIsLoading(false);
+      if (!res.ok) throw new Error();
+
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: `${file.name} uploaded successfully.` },
+      ]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: `Failed to upload ${file.name}. Please try again.` },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -2,6 +2,8 @@
 
 A multi-agent document assistant that lets users upload PDFs and interact with them through an intelligent chat interface. Built as a portfolio project to demonstrate multi-agent orchestration, MCP server implementation, and full-stack TypeScript development.
 
+![Screenshot](docs/screenshots/screenshot.png)
+
 > **Note:** This is an educational and portfolio project, not a production application.
 
 ## Architecture

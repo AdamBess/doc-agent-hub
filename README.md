@@ -1,0 +1,176 @@
+# Doc Agent Hub
+
+A multi-agent document assistant that lets users upload PDFs and interact with them through an intelligent chat interface. Built as a portfolio project to demonstrate multi-agent orchestration, MCP server implementation, and full-stack TypeScript development.
+
+> **Note:** This is an educational and portfolio project, not a production application.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    A[User Question] --> B[Router Agent]
+    B -->|retrieve| C[Retriever Agent]
+    B -->|summarize| D[Summarizer Agent]
+    B -->|getDocument| E[Document Agent]
+    B -->|list| F[Document Manager]
+    C --> G[Similarity Search] --> H[LLM Answer]
+    D --> I[Full Document Chunks] --> J[LLM Summary]
+    E --> K[Full Document Content]
+    F --> L[Database Query]
+    H --> M[Response]
+    J --> M
+    K --> M
+    L --> M
+```
+
+The **Router Agent** uses structured output to classify each question into one of four routes and optionally extracts the document name. Each agent is a dedicated node in a LangGraph `StateGraph` with conditional edges.
+
+### MCP Server
+
+The project includes a standalone **Model Context Protocol (MCP) server** that exposes document tools (`listDocuments`, `searchDocuments`, `getDocumentInfo`, `getDocument`) via the Streamable HTTP transport. External MCP-compatible clients (e.g. Claude Desktop) can connect to `http://localhost:3000/mcp` and use these tools directly.
+
+> **Architecture Decision:** The LangGraph agents call `DocumentsService` directly rather than routing through the MCP server. Self-connecting via HTTP within the same application introduces timing issues and unnecessary overhead. The MCP server exists as an external interface for third-party clients.
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS |
+| Backend | NestJS, TypeScript |
+| LLM Orchestration | LangChain, LangGraph |
+| Language Model | OpenAI GPT-5 / GPT-5-mini |
+| Embeddings | OpenAI text-embedding-3-small |
+| Vector Storage | PostgreSQL + pgvector |
+| MCP Server | @modelcontextprotocol/sdk (Streamable HTTP) |
+| Markdown Rendering | react-markdown, remark-gfm |
+
+## Features
+
+- **Multi-Agent Routing** — LLM-based router classifies questions and delegates to specialized agents
+- **Document Upload** — PDF upload with automatic parsing, chunking, and embedding via LangChain
+- **RAG Retrieval** — Semantic similarity search over document chunks with pgvector
+- **Document Summarization** — Full document summarization by retrieving all chunks
+- **MCP Server** — Standardized tool interface for external clients
+- **Chat Memory** — Conversation persistence per session via LangGraph MemorySaver
+- **Chat Widget** — Floating dark-theme widget with file upload, markdown rendering, and loading states
+- **Error Handling** — Graceful error messages in both frontend and backend
+- **Prompt Injection Protection** — System prompts instruct agents to treat document context as raw data only
+
+## Example Usage
+
+**Upload a document and ask questions:**
+```
+> [Upload] uebung_regression.pdf
+  "uebung_regression.pdf uploaded successfully."
+
+> "What topics does uebung_regression.pdf cover?"
+  "An introductory AI course focused on regression methods, covering
+   linear regression, logistic regression, sigmoid properties..."
+
+> "Which documents do I have?"
+  "- uebung_regression.pdf (uploaded: Thu Mar 26 2026 17:10:15 GMT+0100)"
+```
+
+**Summarize a specific document:**
+```
+> "Summarize BA_Adam_Bessisso.pdf"
+  "The thesis extends the 5Code learning environment from a Java-only
+   LSP setup to a multilingual platform, adding Kotlin and Python..."
+```
+
+**Get raw document content:**
+```
+> "Output the content of Kistenlabel.pdf"
+  [Full document text returned]
+```
+
+## Setup
+
+### Prerequisites
+
+- Node.js 20+
+- Docker
+- OpenAI API key
+- pnpm
+
+### Installation
+
+```bash
+# Clone
+git clone https://github.com/AdamBess/doc-agent-hub.git
+cd doc-agent-hub
+
+# Environment
+cp .env.example .env
+# Add your OPENAI_API_KEY, DB_USER, DB_PASSWORD to .env
+
+# Database
+docker compose up -d
+
+# Backend
+cd backend
+pnpm install
+pnpm start:dev
+
+# Frontend (new terminal)
+cd frontend
+pnpm install
+pnpm dev
+```
+
+Open `http://localhost:5173` — the chat widget appears in the bottom-right corner.
+
+### Environment Variables
+
+```
+OPENAI_API_KEY=your-api-key
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=postgres
+```
+
+## Project Structure
+
+```
+doc-agent-hub/
+├── backend/
+│   └── src/
+│       ├── chat/              # LangGraph workflow, agents, state
+│       │   ├── chat.service.ts      # Router + agent nodes + workflow
+│       │   ├── chat.controller.ts   # POST /chat endpoint
+│       │   └── agent.state.ts       # Zod state schema
+│       ├── documents/         # Upload pipeline + document queries
+│       │   ├── documents.service.ts # PDF parsing, chunking, pgvector
+│       │   ├── documents.controller.ts
+│       │   └── document.entity.ts
+│       ├── mcp/               # MCP server + tools
+│       │   ├── mcp.service.ts       # Tool registration
+│       │   └── mcp.controller.ts    # Streamable HTTP transport
+│       └── health/            # Health check endpoint
+├── frontend/
+│   └── src/
+│       └── chat/
+│           └── ChatWidget.tsx # Floating chat widget
+├── docker-compose.yml         # PostgreSQL + pgvector
+└── .env                       # Environment variables
+```
+
+## Known Limitations
+
+- **Duplicate uploads** — Uploading the same file multiple times creates separate entries. The system uses the most recent upload when matching by filename.
+- **Router ambiguity** — Questions like "What is this document about?" may route to `summarize` instead of `retrieve` depending on phrasing. The router works best with explicit intent.
+- **Document name matching** — The user must reference the exact filename (including `.pdf`) for summarization and document retrieval to work.
+- **Chunk retrieval** — `getDocumentChunks` uses similarity search with an empty query, which may not return all chunks for very large documents.
+- **No authentication** — The application has no user authentication or document access control.
+- **In-memory chat history** — `MemorySaver` stores conversation state in memory; it is lost on server restart.
+
+## What I Learned
+
+- **Multi-Agent Routing** — Using LLM structured output to classify user intent and route to specialized agents via LangGraph conditional edges
+- **LangGraph State Management** — Defining state schemas with Zod, using reducers for message accumulation, and building workflows with `StateGraph`
+- **MCP Server Implementation** — Building a Model Context Protocol server with `registerTool` and Streamable HTTP transport, understanding when MCP adds value vs. direct service calls
+- **RAG Pipeline** — Document ingestion (parse, chunk, embed, store) and retrieval with pgvector similarity search
+- **NestJS Architecture** — Modules, dependency injection, `ConfigService`, `TypeOrmModule.forRootAsync`, and lifecycle hooks (`onModuleInit`)
+- **Prompt Engineering** — Crafting system prompts for routing accuracy and adding prompt injection protection for document context

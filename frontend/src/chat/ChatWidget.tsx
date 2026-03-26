@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 type Message = {
   role: 'user' | 'assistant';
@@ -10,6 +12,7 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [threadId] = useState(() => crypto.randomUUID());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -26,13 +29,13 @@ export default function ChatWidget() {
     const res = await fetch('http://localhost:3000/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({ question, threadId }),
     });
     const data = await res.json();
 
     setMessages((prev) => [
       ...prev,
-      { role: 'assistant', content: data.answer[0] },
+      { role: 'assistant', content: data.answer },
     ]);
     setIsLoading(false);
   };
@@ -198,7 +201,13 @@ export default function ChatWidget() {
                       : 'bg-white/[0.04] text-white/70 ring-1 ring-white/[0.06] rounded-bl-md'
                   }`}
               >
-                {msg.content}
+                {msg.role === 'assistant' ? (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {msg.content}
+                  </ReactMarkdown>
+                ) : (
+                  msg.content
+                )}
               </div>
             </div>
           ))}

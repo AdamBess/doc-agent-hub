@@ -6,6 +6,17 @@ A multi-agent document assistant that lets users upload PDFs and interact with t
 
 > **Note:** This is an educational and portfolio project, not a production application.
 
+## Table of Contents
+
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Example Usage](#example-usage)
+- [Setup](#setup)
+- [Project Structure](#project-structure)
+- [Known Limitations](#known-limitations)
+- [What I Learned](#what-i-learned)
+
 ## Architecture
 
 ```mermaid
@@ -26,6 +37,16 @@ flowchart TD
 ```
 
 The **Router Agent** uses structured output to classify each question into one of four routes and optionally extracts the document name. Each agent is a dedicated node in a LangGraph `StateGraph` with conditional edges.
+
+### Service Architecture
+
+The backend chat pipeline is split into three services following the Single Responsibility Principle:
+
+| Service | Responsibility |
+|---------|---------------|
+| `ChatService` | Assembles the LangGraph `StateGraph` workflow and wires up nodes and edges |
+| `RouterService` | Contains the `route` node (LLM classification) and `routeToAgents` conditional edge logic |
+| `AgentService` | Contains all agent nodes: `retrieve`, `summarize`, `getDocument`, `listDocuments` |
 
 ### MCP Server
 
@@ -129,7 +150,9 @@ doc-agent-hub/
 ├── backend/
 │   └── src/
 │       ├── chat/              # LangGraph workflow, agents, state
-│       │   ├── chat.service.ts      # Router + agent nodes + workflow
+│       │   ├── chat.service.ts      # Workflow assembly (StateGraph wiring)
+│       │   ├── router.service.ts    # Routing logic (route node + conditional edges)
+│       │   ├── agent.service.ts     # Agent nodes (retrieve, summarize, getDocument, listDocuments)
 │       │   ├── chat.controller.ts   # POST /chat endpoint
 │       │   └── agent.state.ts       # Zod state schema
 │       ├── documents/         # Upload pipeline + document queries

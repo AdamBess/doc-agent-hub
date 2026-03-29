@@ -91,7 +91,7 @@ The project includes a standalone **Model Context Protocol (MCP) server** that e
    linear regression, logistic regression, sigmoid properties..."
 
 > "Which documents do I have?"
-  "- report.pdf (uploaded: Thu Mar 26 2026 17:10:15 GMT+0100)"
+  "- report.pdf (uploaded: 26.03.2026, 17:10)"
 ```
 
 **Summarize a specific document:**
@@ -173,7 +173,7 @@ doc-agent-hub/
 
 ## Known Limitations
 
-- **Duplicate uploads** — Uploading the same file multiple times creates separate entries. The system uses the most recent upload when matching by filename.
+- **Duplicate uploads** — Uploading the same file multiple times creates separate entries. When matching by filename, `findOneBy` returns an arbitrary match — not guaranteed to be the most recent upload.
 - **Router ambiguity** — Questions like "What is this document about?" may route to `summarize` instead of `retrieve` depending on phrasing. The router works best with explicit intent.
 - **Document name matching** — The user must reference the exact filename (including `.pdf`) for summarization and document retrieval to work.
 - **Chunk retrieval** — `getDocumentChunks` uses similarity search with an empty query, which may not return all chunks for very large documents.

@@ -6,13 +6,17 @@ import { AgentService } from './agent.service';
 
 @Injectable()
 export class ChatService {
-  workflow: any;
+  workflow: ReturnType<ChatService['buildWorkflow']>;
 
   constructor(
     private routerService: RouterService,
     private agentService: AgentService,
   ) {
-    this.workflow = new StateGraph(AgentState)
+    this.workflow = this.buildWorkflow();
+  }
+
+  private buildWorkflow() {
+    return new StateGraph(AgentState)
       .addNode('route', this.routerService.route)
       .addNode('retrieve', this.agentService.retrieve)
       .addNode('summarize', this.agentService.summarize)

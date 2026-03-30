@@ -43,7 +43,10 @@ export default function ChatWidget() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: 'Something went wrong. Please try again.' },
+        {
+          role: 'assistant',
+          content: 'Something went wrong. Please try again.',
+        },
       ]);
     } finally {
       setIsLoading(false);
@@ -74,7 +77,10 @@ export default function ChatWidget() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: `Failed to upload ${file.name}. Please try again.` },
+        {
+          role: 'assistant',
+          content: `Failed to upload ${file.name}. Please try again.`,
+        },
       ]);
     } finally {
       setIsLoading(false);
@@ -222,9 +228,11 @@ export default function ChatWidget() {
                   }`}
               >
                 {msg.role === 'assistant' ? (
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {msg.content}
-                  </ReactMarkdown>
+                  <div className="prose prose-invert prose-sm max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.content}
+                    </ReactMarkdown>
+                  </div>
                 ) : (
                   msg.content
                 )}

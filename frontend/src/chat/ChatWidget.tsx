@@ -7,6 +7,8 @@ type Message = {
   content: string;
 };
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -27,7 +29,7 @@ export default function ChatWidget() {
     setIsLoading(true);
 
     try {
-      const res = await fetch('http://localhost:3000/chat', {
+      const res = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question, threadId }),
@@ -58,7 +60,7 @@ export default function ChatWidget() {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch('http://localhost:3000/documents/upload', {
+      const res = await fetch(`${API_URL}/documents/upload`, {
         method: 'POST',
         body: formData,
       });

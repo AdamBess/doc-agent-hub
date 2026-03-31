@@ -1,6 +1,12 @@
 import { StateSchema, ReducedValue } from '@langchain/langgraph';
 import { z } from 'zod';
 
+/**
+ * Shared state passed between all nodes in the LangGraph workflow.
+ * Each node can read from and write to this state.
+ * `messages` uses a reducer instead of a plain value so that each node
+ * appends its response rather than overwriting previous messages.
+ */
 export const AgentState = new StateSchema({
   question: z.string(),
   documentId: z.number().optional(),

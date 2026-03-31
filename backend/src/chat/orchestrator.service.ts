@@ -15,6 +15,13 @@ export class OrchestratorService {
     this.workflow = this.buildWorkflow();
   }
 
+  /**
+   * Builds the LangGraph StateGraph that orchestrates the multi-agent workflow.
+   * Each node is a specialized agent; edges define the execution flow.
+   * The route node runs first and uses an LLM to classify the user's intent,
+   * then a conditional edge delegates to the appropriate agent.
+   * MemorySaver persists conversation history across requests via threadId.
+   */
   private buildWorkflow() {
     return new StateGraph(AgentState)
       .addNode('route', this.routerService.route)

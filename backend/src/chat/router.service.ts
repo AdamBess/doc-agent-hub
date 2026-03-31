@@ -2,6 +2,11 @@ import { ChatOpenAI } from '@langchain/openai';
 import { Injectable } from '@nestjs/common';
 import { RouteDecisionSchema, AgentState } from './agent.state';
 
+/**
+ * Determines which agent handles a user's request.
+ * Uses structured LLM output to classify the intent into one of four routes,
+ * and extracts a document name if mentioned.
+ */
 @Injectable()
 export class RouterService {
   private routerLlm = new ChatOpenAI({ model: 'gpt-5-mini' });

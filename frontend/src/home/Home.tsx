@@ -99,6 +99,7 @@ export default function Home() {
             'pgvector',
             'PostgreSQL',
             'MCP',
+            'LangSmith',
             'Tailwind CSS',
           ].map((tech) => (
             <span

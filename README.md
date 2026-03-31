@@ -65,6 +65,7 @@ The project includes a standalone **Model Context Protocol (MCP) server** that e
 | Embeddings         | OpenAI text-embedding-3-small               |
 | Vector Storage     | PostgreSQL + pgvector                       |
 | MCP Server         | @modelcontextprotocol/sdk (Streamable HTTP) |
+| Tracing            | LangSmith                                   |
 | Markdown Rendering | react-markdown, remark-gfm                  |
 
 ## Features
@@ -74,6 +75,7 @@ The project includes a standalone **Model Context Protocol (MCP) server** that e
 - **RAG Retrieval** — Semantic similarity search over document chunks with pgvector
 - **Document Summarization** — Full document summarization by retrieving all chunks
 - **MCP Server** — Standardized tool interface for external clients
+- **LLM Tracing** — Workflow traces and agent calls visible in LangSmith
 - **Chat Memory** — Conversation persistence per session via LangGraph MemorySaver
 - **Chat Widget** — Floating dark-theme widget with file upload, markdown rendering, and loading states
 - **Error Handling** — Graceful error messages in both frontend and backend
@@ -153,7 +155,7 @@ doc-agent-hub/
 ├── backend/
 │   └── src/
 │       ├── chat/              # LangGraph workflow, agents, state
-│       │   ├── chat.service.ts      # Workflow assembly (StateGraph wiring)
+│       │   ├── orchestrator.service.ts  # Workflow assembly (StateGraph wiring)
 │       │   ├── router.service.ts    # Routing logic (route node + conditional edges)
 │       │   ├── agent.service.ts     # Agent nodes (retrieve, summarize, getDocument, listDocuments)
 │       │   ├── chat.controller.ts   # POST /chat endpoint

@@ -1,9 +1,15 @@
-import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
-import { ChatService } from './chat.service';
+import {
+  Body,
+  Controller,
+  HttpException,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
+import { OrchestratorService } from './orchestrator.service';
 
 @Controller('chat')
 export class ChatController {
-  constructor(private chatService: ChatService) {}
+  constructor(private orchestratorService: OrchestratorService) {}
 
   @Post()
   async chat(@Body() body: { question: string; threadId?: string }) {
@@ -12,7 +18,7 @@ export class ChatController {
     }
 
     try {
-      const result = await this.chatService.workflow.invoke(
+      const result = await this.orchestratorService.workflow.invoke(
         { question: body.question },
         { configurable: { thread_id: body.threadId ?? 'default' } },
       );

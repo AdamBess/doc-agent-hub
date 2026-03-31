@@ -42,11 +42,11 @@ The **Router Agent** uses structured output to classify each question into one o
 
 The backend chat pipeline is split into three services following the Single Responsibility Principle:
 
-| Service | Responsibility |
-|---------|---------------|
-| `ChatService` | Assembles the LangGraph `StateGraph` workflow and wires up nodes and edges |
-| `RouterService` | Contains the `route` node (LLM classification) and `routeToAgents` conditional edge logic |
-| `AgentService` | Contains all agent nodes: `retrieve`, `summarize`, `getDocument`, `listDocuments` |
+| Service               | Responsibility                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------------- |
+| `OrchestratorService` | Assembles the LangGraph `StateGraph` workflow and wires up nodes and edges                |
+| `RouterService`       | Contains the `route` node (LLM classification) and `routeToAgents` conditional edge logic |
+| `AgentService`        | Contains all agent nodes: `retrieve`, `summarize`, `getDocument`, `listDocuments`         |
 
 ### MCP Server
 
@@ -56,16 +56,16 @@ The project includes a standalone **Model Context Protocol (MCP) server** that e
 
 ## Tech Stack
 
-| Component | Technology |
-|-----------|------------|
-| Frontend | React 19, TypeScript, Vite, Tailwind CSS |
-| Backend | NestJS, TypeScript |
-| LLM Orchestration | LangChain, LangGraph |
-| Language Model | OpenAI GPT-5 / GPT-5-mini |
-| Embeddings | OpenAI text-embedding-3-small |
-| Vector Storage | PostgreSQL + pgvector |
-| MCP Server | @modelcontextprotocol/sdk (Streamable HTTP) |
-| Markdown Rendering | react-markdown, remark-gfm |
+| Component          | Technology                                  |
+| ------------------ | ------------------------------------------- |
+| Frontend           | React 19, TypeScript, Vite, Tailwind CSS    |
+| Backend            | NestJS, TypeScript                          |
+| LLM Orchestration  | LangChain, LangGraph                        |
+| Language Model     | OpenAI GPT-5 / GPT-5-mini                   |
+| Embeddings         | OpenAI text-embedding-3-small               |
+| Vector Storage     | PostgreSQL + pgvector                       |
+| MCP Server         | @modelcontextprotocol/sdk (Streamable HTTP) |
+| Markdown Rendering | react-markdown, remark-gfm                  |
 
 ## Features
 
@@ -82,6 +82,7 @@ The project includes a standalone **Model Context Protocol (MCP) server** that e
 ## Example Usage
 
 **Upload a document and ask questions:**
+
 ```
 > [Upload] report.pdf
   "report.pdf uploaded successfully."
@@ -95,6 +96,7 @@ The project includes a standalone **Model Context Protocol (MCP) server** that e
 ```
 
 **Summarize a specific document:**
+
 ```
 > "Summarize thesis.pdf"
   "The thesis extends the 5Code learning environment from a Java-only
@@ -102,6 +104,7 @@ The project includes a standalone **Model Context Protocol (MCP) server** that e
 ```
 
 **Get raw document content:**
+
 ```
 > "Output the content of notes.pdf"
   [Full document text returned]

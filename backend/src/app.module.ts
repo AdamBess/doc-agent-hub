@@ -21,7 +21,7 @@ import { McpModule } from './mcp/mcp.module';
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_NAME', 'postgres'),
         entities: [Document],
-        synchronize: true,
+        synchronize: true, // dev only — use migrations in production
       }),
     }),
     DocumentsModule,

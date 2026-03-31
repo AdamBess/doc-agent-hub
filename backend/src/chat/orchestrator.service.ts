@@ -5,8 +5,8 @@ import { RouterService } from './router.service';
 import { AgentService } from './agent.service';
 
 @Injectable()
-export class ChatService {
-  workflow: ReturnType<ChatService['buildWorkflow']>;
+export class OrchestratorService {
+  workflow: ReturnType<OrchestratorService['buildWorkflow']>;
 
   constructor(
     private routerService: RouterService,

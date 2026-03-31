@@ -176,7 +176,7 @@ doc-agent-hub/
 - **Duplicate uploads** — Uploading the same file multiple times creates separate entries. When matching by filename, `findOneBy` returns an arbitrary match — not guaranteed to be the most recent upload.
 - **Router ambiguity** — Questions like "What is this document about?" may route to `summarize` instead of `retrieve` depending on phrasing. The router works best with explicit intent.
 - **Document name matching** — The user must reference the exact filename (including `.pdf`) for summarization and document retrieval to work.
-- **Chunk retrieval** — `getDocumentChunks` uses similarity search with an empty query, which may not return all chunks for very large documents.
+- **Full document retrieval** — The "get document" feature reconstructs document content by running a similarity search with an empty query string (`similaritySearch('', 100, { documentId })`), capped at 100 chunks. This is a misuse of the vector search API: results are ranked by embedding distance rather than document order, so the reassembled text may be out of sequence. For large documents the 100-chunk cap also means content is silently truncated. The correct approach would be to either persist the original file and return it directly, or store chunk position metadata and retrieve chunks via a plain SQL query ordered by position — bypassing the vector store entirely for this use case. Implementing either solution is out of scope for this project.
 - **No authentication** — The application has no user authentication or document access control.
 - **In-memory chat history** — `MemorySaver` stores conversation state in memory; it is lost on server restart.
 

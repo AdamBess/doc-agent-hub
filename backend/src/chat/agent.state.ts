@@ -16,11 +16,11 @@ export const AgentState = new StateSchema({
     { reducer: (current, update) => current.concat(update) },
   ),
   routeDecision: z
-    .enum(['retrieve', 'summarize', 'list', 'getDocument'])
+    .enum(['retrieve', 'summarize', 'listDocuments', 'getDocument'])
     .optional(),
 });
 
 export const RouteDecisionSchema = z.object({
-  route: z.enum(['retrieve', 'summarize', 'list', 'getDocument']),
+  route: z.enum(['retrieve', 'summarize', 'listDocuments', 'getDocument']),
   documentName: z.string().default(''),
 });

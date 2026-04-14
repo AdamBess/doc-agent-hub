@@ -148,6 +148,19 @@ pnpm dev
 
 Open `http://localhost:5173` — the chat widget appears in the bottom-right corner.
 
+### Docker Setup (alternative)
+
+Runs the full stack (DB + backend + frontend) without requiring Node.js or pnpm locally.
+
+```bash
+cp .env.example .env
+# Add your OPENAI_API_KEY, DB_USER, DB_PASSWORD to .env
+
+docker compose up --build
+```
+
+Open `http://localhost`.
+
 ## Project Structure
 
 ```

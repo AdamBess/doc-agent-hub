@@ -146,7 +146,7 @@ pnpm install
 pnpm dev
 ```
 
-Open `http://localhost:5173` — the chat widget appears in the bottom-right corner.
+Open `http://localhost:5173`.
 
 ### Docker Setup (alternative)
 
